@@ -1,0 +1,42 @@
+# System files
+.DS_Store
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Visual Studio files
+*.tlog
+*.manifest
+*.manifest.res
+*_manifest.rc
+*.lastbuildstate
+*.idb
+*.sdf
+*.opensdf
+*/ipch
