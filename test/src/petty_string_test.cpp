@@ -278,6 +278,28 @@ TEST(StringToIntegerTest, Auto) {
 
   int test4_value = pettys::StringToInteger<int>("0X0F", 0);
   EXPECT_EQ(15, test4_value);
+
+  for (int i = 0; i < 256; i++) {
+    std::string test5_source;
+
+    switch (i & 0x03) {
+      case 0:
+        test5_source = pettys::StringFormat("%04o", i);
+        break;
+      case 1:
+        test5_source = pettys::StringFormat("%d", i);
+        break;
+      case 2:
+        test5_source = pettys::StringFormat("0x%02x", i);
+        break;
+      case 3:
+        test5_source = pettys::StringFormat("0X%02X", i);
+        break;
+    }
+
+    int test5_value = pettys::StringToInteger<int>(test5_source.c_str(), 0);
+    EXPECT_EQ(i, test5_value);
+  }
 }
 
 /// pettystring::StringStartsWith true test.
