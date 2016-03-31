@@ -7,6 +7,7 @@
 #ifndef PETTYSTRING_PETTY_STRING_H_
 #define PETTYSTRING_PETTY_STRING_H_
 
+#include <stdarg.h>
 #include <string.h>
 #include <cstddef>
 #include <limits>
@@ -54,6 +55,45 @@ inline T NullOption(T* data, T option) {
 template <typename T>
 inline T* NullOptionPtr(T* data, T* option) {
   return (data != nullptr) ? data : option;
+}
+
+/// String format.
+///
+/// @param format string format.
+/// @param args   argument.
+/// @return string.
+///
+inline std::string StringFormatV(const char* format, va_list args) {
+  // resize buffer
+  va_list args_temp;
+  va_copy(args_temp, args);
+  int length = ::vsnprintf(0, 0, format, args_temp);
+  va_end(args_temp);
+
+  if (length > 0) {
+    std::vector<char> buffer(length + 1, '\0');
+
+    // string format
+    ::vsnprintf(&buffer[0], buffer.size(), format, args);
+
+    return std::string(&buffer[0]);
+  } else {
+    return std::string();
+  }
+}
+
+/// String format.
+///
+/// @param format string format.
+/// @return string.
+///
+inline std::string StringFormat(const char* format, ...) {
+  va_list args;
+  va_start(args, format);
+  std::string value = StringFormatV(format, args);
+  va_end(args);
+
+  return std::move(value);
 }
 
 /// String front whitespace length.

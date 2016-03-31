@@ -56,6 +56,29 @@ TEST(NullOptionPtrTest, IsNull) {
   EXPECT_STREQ("is null", test1);
 }
 
+/// pettystring::StringFormat format test.
+///
+TEST(StringFormatTest, Format) {
+  auto test = pettys::StringFormat("test%d", 1);
+  EXPECT_STREQ("test1", test.c_str());
+}
+
+std::string SubFormat(const char* format, ...) {
+  va_list args;
+  va_start(args, format);
+  auto value = pettys::StringFormatV(format, args);
+  va_end(args);
+
+  return std::move(value);
+}
+
+/// pettystring::StringFormatV format test.
+///
+TEST(StringFormatVTest, Format) {
+  auto test = SubFormat("test%d", 2);
+  EXPECT_STREQ("test2", test.c_str());
+}
+
 /// pettystring::TryStringToInteger octal test.
 ///
 TEST(TryStringToIntegerTest, Octal) {
