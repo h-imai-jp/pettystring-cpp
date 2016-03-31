@@ -279,8 +279,11 @@ inline Integer StringToInteger(const char* source, int radix) {
 ///
 inline bool StringStartsWith(const char* source,
                              const char* prefix) {
-  return ((source != nullptr) && (prefix != nullptr)
-      && (::strstr(source, prefix) == source));
+  if ((source != nullptr) && (prefix != nullptr)) {
+    return (::strncmp(source, prefix, ::strlen(prefix)) == 0);
+  } else {
+    return false;
+  }
 }
 
 /// Ends with string.
@@ -295,8 +298,9 @@ inline bool StringEndsWith(const char* source,
     std::size_t value_length = ::strlen(source);
     std::size_t suffix_length = ::strlen(suffix);
     return ((value_length >= suffix_length)
-        && (::strstr(source + (value_length - suffix_length),
-                     suffix) != nullptr));
+        && (::strncmp(source + (value_length - suffix_length),
+                      suffix,
+                      suffix_length) == 0));
   } else {
     return false;
   }
