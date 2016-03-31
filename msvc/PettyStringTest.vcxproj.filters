@@ -24,12 +24,21 @@
     <ClCompile Include="..\test\src\petty_string_test.cpp">
       <Filter>Source Files\test</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\json.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\test\src\json_test.cpp">
+      <Filter>Source Files\test</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\pettystring\base64.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\pettystring\petty_string.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\pettystring\json.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -81,11 +81,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\json.cpp" />
     <ClCompile Include="..\test\src\base64_test.cpp" />
+    <ClCompile Include="..\test\src\json_test.cpp" />
     <ClCompile Include="..\test\src\petty_string_test.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\pettystring\base64.h" />
+    <ClInclude Include="..\include\pettystring\json.h" />
     <ClInclude Include="..\include\pettystring\petty_string.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
