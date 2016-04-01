@@ -7,10 +7,10 @@
 #ifndef PETTYSTRING_JSON_H_
 #define PETTYSTRING_JSON_H_
 
-#include <cstdint>
-#include <memory>
 #include <string>
 #include <vector>
+
+#include "petty_string.h"
 
 namespace pettystring {
 
@@ -29,7 +29,7 @@ class JsonObject {
   /// @param json JSON string.
   /// @return JSON object if successful, or null otherwise.
   ///
-  static std::unique_ptr<JsonObject> Parse(const std::string& json);
+  static c11::unique_ptr<JsonObject> Parse(const std::string& json);
 
   /// Serialize to JSON string.
   ///
@@ -64,7 +64,7 @@ class JsonObject {
   /// @return the value mapped by name if it exists and is a boolean,
   ///         or null otherwise.
   ///
-  virtual std::unique_ptr<bool> GetBoolean(const std::string& name) const = 0;
+  virtual c11::unique_ptr<bool> GetBoolean(const std::string& name) const = 0;
 
   /// To boolean value mapped by name.
   ///
@@ -72,7 +72,7 @@ class JsonObject {
   /// @return the value mapped by name if it exists and is a boolean
   ///         or can be coerced to a boolean, or null otherwise.
   ///
-  virtual std::unique_ptr<bool> ToBoolean(const std::string& name) const = 0;
+  virtual c11::unique_ptr<bool> ToBoolean(const std::string& name) const = 0;
 
   /// Get string value mapped by name.
   ///
@@ -80,7 +80,7 @@ class JsonObject {
   /// @return the value mapped by name if it exists and is a string,
   ///         or null otherwise.
   ///
-  virtual std::unique_ptr<std::string> GetString(
+  virtual c11::unique_ptr<std::string> GetString(
       const std::string& name) const = 0;
 
   /// To string value mapped by name.
@@ -89,7 +89,7 @@ class JsonObject {
   /// @return the value mapped by name if it exists and is a string
   ///         or can be coerced to a string, or null otherwise.
   ///
-  virtual std::unique_ptr<std::string> ToString(
+  virtual c11::unique_ptr<std::string> ToString(
       const std::string& name) const = 0;
 
   /// Get 32bit integer value mapped by name.
@@ -98,7 +98,7 @@ class JsonObject {
   /// @return the value mapped by name if it exists and is a 32bit integer,
   ///         or null otherwise.
   ///
-  virtual std::unique_ptr<std::int32_t> GetInt32(
+  virtual c11::unique_ptr<std::int32_t> GetInt32(
       const std::string& name) const = 0;
 
   /// To 32bit integer value mapped by name.
@@ -107,7 +107,7 @@ class JsonObject {
   /// @return the value mapped by name if it exists and is a 32bit integer
   ///         or can be coerced to a 32bit integer, or null otherwise.
   ///
-  virtual std::unique_ptr<std::int32_t> ToInt32(
+  virtual c11::unique_ptr<std::int32_t> ToInt32(
       const std::string& name) const = 0;
 
   /// Get object value mapped by name.
@@ -159,7 +159,7 @@ class JsonObject {
   /// @param value object value.
   ///
   virtual void PutObject(const std::string& name,
-                         std::unique_ptr<JsonObject> value) = 0;
+                         c11::unique_ptr<JsonObject> value) = 0;
 
   /// Put array value mapped by name.
   ///
@@ -167,7 +167,7 @@ class JsonObject {
   /// @param value array value.
   ///
   virtual void PutArray(const std::string& name,
-                        std::unique_ptr<JsonArray> value) = 0;
+                        c11::unique_ptr<JsonArray> value) = 0;
 
   /// Remove value mapped by name.
   ///
@@ -196,7 +196,7 @@ class JsonArray {
   /// @param json JSON string.
   /// @return JSON array if successful, or null otherwise.
   ///
-  static std::unique_ptr<JsonArray> Parse(const std::string& json);
+  static c11::unique_ptr<JsonArray> Parse(const std::string& json);
 
   /// Serialize to JSON string.
   ///
@@ -224,7 +224,7 @@ class JsonArray {
   /// @return the value at index if it exists and is a boolean,
   ///         or null otherwise.
   ///
-  virtual std::unique_ptr<bool> GetBoolean(std::size_t index) const = 0;
+  virtual c11::unique_ptr<bool> GetBoolean(std::size_t index) const = 0;
 
   /// To boolean value at index.
   ///
@@ -232,7 +232,7 @@ class JsonArray {
   /// @return the value at index if it exists and is a boolean
   ///         or can be coerced to a boolean, or null otherwise.
   ///
-  virtual std::unique_ptr<bool> ToBoolean(std::size_t index) const = 0;
+  virtual c11::unique_ptr<bool> ToBoolean(std::size_t index) const = 0;
 
   /// Get string value at index.
   ///
@@ -240,7 +240,7 @@ class JsonArray {
   /// @return the value at index if it exists and is a string,
   ///         or null otherwise.
   ///
-  virtual std::unique_ptr<std::string> GetString(std::size_t index) const = 0;
+  virtual c11::unique_ptr<std::string> GetString(std::size_t index) const = 0;
 
   /// To string value at index.
   ///
@@ -248,7 +248,7 @@ class JsonArray {
   /// @return the value at index if it exists and is a string
   ///         or can be coerced to a string, or null otherwise.
   ///
-  virtual std::unique_ptr<std::string> ToString(std::size_t index) const = 0;
+  virtual c11::unique_ptr<std::string> ToString(std::size_t index) const = 0;
 
   /// Get 32bit integer value at index.
   ///
@@ -256,7 +256,7 @@ class JsonArray {
   /// @return the value at index if it exists and is a 32bit integer,
   ///         or null otherwise.
   ///
-  virtual std::unique_ptr<std::int32_t> GetInt32(std::size_t index) const = 0;
+  virtual c11::unique_ptr<std::int32_t> GetInt32(std::size_t index) const = 0;
 
   /// To 32bit integer value at index.
   ///
@@ -264,7 +264,7 @@ class JsonArray {
   /// @return the value at index if it exists and is a 32bit integer
   ///         or can be coerced to a 32bit integer, or null otherwise.
   ///
-  virtual std::unique_ptr<std::int32_t> ToInt32(std::size_t index) const = 0;
+  virtual c11::unique_ptr<std::int32_t> ToInt32(std::size_t index) const = 0;
 
   /// Get object value at index.
   ///
@@ -308,13 +308,13 @@ class JsonArray {
   ///
   /// @param value object value.
   ///
-  virtual void AppendObject(std::unique_ptr<JsonObject> value) = 0;
+  virtual void AppendObject(c11::unique_ptr<JsonObject> value) = 0;
 
   /// Append array value.
   ///
   /// @param value array value.
   ///
-  virtual void AppendArray(std::unique_ptr<JsonArray> value) = 0;
+  virtual void AppendArray(c11::unique_ptr<JsonArray> value) = 0;
 
   /// Remove value at index.
   ///

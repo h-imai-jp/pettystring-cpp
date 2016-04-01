@@ -8,9 +8,7 @@
 #define PETTYSTRING_BASE64_H_
 
 #include <cstddef>
-#include <cstdint>
 #include <string>
-#include <utility>
 
 #include "petty_string.h"
 
@@ -32,7 +30,7 @@ inline std::string EncodeBase64(InputIterator first, InputIterator last) {
 
   while (first != last) {
     base64.push_back(kBase64Table[(*first >> 2) & 0x3f]);
-    std::uint8_t remain_bit = (*first << 4) & 0x30;
+    c11::uint8_t remain_bit = (*first << 4) & 0x30;
     if (++first == last) {
       base64.push_back(kBase64Table[remain_bit]);
       base64.append(2, '=');
@@ -50,7 +48,7 @@ inline std::string EncodeBase64(InputIterator first, InputIterator last) {
     }
   }
 
-  return std::move(base64);
+  return c11::move(base64);
 }
 
 /// Check Base64 encoded.

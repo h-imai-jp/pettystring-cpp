@@ -9,11 +9,68 @@
 
 #include <stdarg.h>
 #include <string.h>
-#include <cstddef>
 #include <limits>
 #include <string>
-#include <utility>
 #include <vector>
+
+#ifndef PETTYSTRING_USE_BOOST
+
+#include <cstdint>
+#include <memory>
+#include <utility>
+
+namespace pettystring {
+namespace c11 {
+  using std::int8_t;
+  using std::uint8_t;
+  using std::int16_t;
+  using std::uint16_t;
+  using std::int32_t;
+  using std::uint32_t;
+  using std::int64_t;
+  using std::uint64_t;
+
+  using std::move;
+
+  using std::shared_ptr;
+  using std::unique_ptr;
+}  // namespace c11
+}  // namespace pettystring
+
+#else
+
+#include <boost/cstdint.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/interprocess/smart_ptr/unique_ptr.hpp>
+#include <boost/move/move.hpp>
+
+/// Use nullptr in C++98.
+#if defined(BOOST_NO_NULLPTR) && !defined(nullptr)
+# define nullptr 0
+#endif
+
+namespace pettystring {
+namespace c11 {
+  /// Use stdint.h in C++98.
+  using boost::int8_t;
+  using boost::uint8_t;
+  using boost::int16_t;
+  using boost::uint16_t;
+  using boost::int32_t;
+  using boost::uint32_t;
+  using boost::int64_t;
+  using boost::uint64_t;
+
+  /// Use move sematics in C++98.
+  using boost::move;
+
+  /// Use memory in C++98.
+  using boost::shared_ptr;
+  using boost::interprocess::unique_ptr;
+}  // namespace c11
+}  // namespace pettystring
+
+#endif  // PETTYSTRING_USE_BOOST
 
 /// Non-copyable class macro.
 /// Macro name is with reference to the Google Style Guides.
@@ -42,7 +99,7 @@ namespace pettystring {
 ///
 template <typename T>
 inline T NullOption(T* data, T option) {
-  return (data != nullptr) ? *data : std::move(option);
+  return (data != nullptr) ? *data : c11::move(option);
 }
 
 /// Null pointer option.
@@ -93,7 +150,7 @@ inline std::string StringFormat(const char* format, ...) {
   std::string value = StringFormatV(format, args);
   va_end(args);
 
-  return std::move(value);
+  return c11::move(value);
 }
 
 /// String front whitespace length.
@@ -124,7 +181,7 @@ inline std::string::size_type StringFrontWhitespaceLength(const char* source) {
 /// @return whitespace length.
 ///
 inline std::string::size_type StringBackWhitespaceLength(const char* source) {
-  std::size_t length = 0;
+  std::string::size_type length = 0;
 
   if (source != nullptr) {
     length = ::strlen(source);
@@ -220,14 +277,14 @@ inline bool TryStringToInteger(const char* source, int radix, Integer* value) {
   }
 
   // back trim
-  std::size_t length = StringBackWhitespaceLength(source);
+  std::string::size_type length = StringBackWhitespaceLength(source);
   if (length == 0) {
     return false;
   }
 
   // convert string to integer
   Integer result = 0;
-  for (std::size_t i = 0; i < length; i++, source++) {
+  for (std::string::size_type i = 0; i < length; i++, source++) {
     Integer digit;
 
     char code = *source | 0x20;
@@ -295,8 +352,8 @@ inline bool StringStartsWith(const char* source,
 inline bool StringEndsWith(const char* source,
                            const char* suffix) {
   if ((source != nullptr) && (suffix != nullptr)) {
-    std::size_t value_length = ::strlen(source);
-    std::size_t suffix_length = ::strlen(suffix);
+    std::string::size_type value_length = ::strlen(source);
+    std::string::size_type suffix_length = ::strlen(suffix);
     return ((value_length >= suffix_length)
         && (::strncmp(source + (value_length - suffix_length),
                       suffix,
@@ -318,7 +375,7 @@ inline std::string StringReplaceAll(const char* source,
                                     const char* new_string) {
   if ((source != nullptr) && (old_string != nullptr)) {
     std::string buffer;
-    std::size_t old_length = ::strlen(old_string);
+    std::string::size_type old_length = ::strlen(old_string);
 
     new_string = NullOptionPtr(new_string, "");
     while (const char* found = ::strstr(source, old_string)) {
@@ -327,7 +384,7 @@ inline std::string StringReplaceAll(const char* source,
     }
     buffer.append(source);
 
-    return std::move(buffer);
+    return c11::move(buffer);
   } else {
     return std::string();
   }
@@ -355,7 +412,7 @@ inline std::vector<std::string> StringSplit(const char* source,
     splits.push_back(std::string(source));
   }
 
-  return std::move(splits);
+  return c11::move(splits);
 }
 
 /// Single charactor delimiter function class.
@@ -416,7 +473,7 @@ inline std::vector<T> StringToArray(const char* source,
     source = converter(source, &buffer);
   }
 
-  return std::move(buffer);
+  return c11::move(buffer);
 }
 
 /// Convert array to string.
@@ -432,11 +489,11 @@ inline std::string ArrayToString(InputIterator first,
                                  Converter converter) {
   std::string buffer;
 
-  for (std::size_t index = 0; first != last; ++first, index++) {
+  for (std::string::size_type index = 0; first != last; ++first, index++) {
     converter(*first, index, &buffer);
   }
 
-  return std::move(buffer);
+  return c11::move(buffer);
 }
 
 /// Hexadecimal byte string converter function class.
@@ -486,7 +543,7 @@ class ToHexByte {
   ///
   template <typename T>
   inline void operator()(T source,
-                         std::size_t index,
+                         std::string::size_type index,
                          std::string* destination) {
     if (index != 0) {
       destination->append(separator_);
@@ -515,7 +572,9 @@ struct ToMultiByte {
   /// @param destination destination string.
   ///
   template <typename T>
-  inline void operator()(T source, std::size_t, std::string* destination) {
+  inline void operator()(T source,
+                         std::string::size_type,
+                         std::string* destination) {
     destination->push_back(static_cast<char>(source & 0xff));
   }
 };

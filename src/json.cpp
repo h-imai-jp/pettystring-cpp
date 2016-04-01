@@ -13,7 +13,6 @@
 # define PRId32 "I32d"
 # define PRId64 "I64d"
 #endif
-#include <cstdint>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -23,6 +22,7 @@
 namespace {
 
 namespace pettys = pettystring;
+namespace c11 = pettystring::c11;
 
 // forward declaration
 class JsonValue;
@@ -33,12 +33,12 @@ class JsonNumber;
 class InputStream;
 
 // function prototype
-std::unique_ptr<JsonValue> NumberStringToJsonValue(const std::string& value);
-std::unique_ptr<JsonValue> JsonObjectToJsonValue(
-    std::unique_ptr<pettys::JsonObject> value);
-std::unique_ptr<JsonValue> JsonArrayToJsonValue(
-    std::unique_ptr<pettys::JsonArray> value);
-std::unique_ptr<JsonValue> ParseValue(InputStream* input);
+c11::unique_ptr<JsonValue> NumberStringToJsonValue(const std::string& value);
+c11::unique_ptr<JsonValue> JsonObjectToJsonValue(
+    c11::unique_ptr<pettys::JsonObject> value);
+c11::unique_ptr<JsonValue> JsonArrayToJsonValue(
+    c11::unique_ptr<pettys::JsonArray> value);
+c11::unique_ptr<JsonValue> ParseValue(InputStream* input);
 std::string SerializeString(const std::string value);
 
 /// JSON value type.
@@ -77,8 +77,8 @@ class JsonValue {
   /// @return boolean value if can be coerced to a boolean,
   ///         or null otherwise.
   ///
-  virtual std::unique_ptr<bool> ToBoolean() const {
-    return std::unique_ptr<bool>();
+  virtual c11::unique_ptr<bool> ToBoolean() const {
+    return c11::unique_ptr<bool>();
   }
 
   /// Coerced to string value.
@@ -86,8 +86,8 @@ class JsonValue {
   /// @return string value if can be coerced to a string,
   ///         or null otherwise.
   ///
-  virtual std::unique_ptr<std::string> ToString() const {
-    return std::unique_ptr<std::string>();
+  virtual c11::unique_ptr<std::string> ToString() const {
+    return c11::unique_ptr<std::string>();
   }
 
   /// Coerced to 32bit integer value.
@@ -95,8 +95,8 @@ class JsonValue {
   /// @return 32bit integer value if can be coerced to a 32bit integer,
   ///         or null otherwise.
   ///
-  virtual std::unique_ptr<std::int32_t> ToInt32() const {
-    return std::unique_ptr<std::int32_t>();
+  virtual c11::unique_ptr<c11::int32_t> ToInt32() const {
+    return c11::unique_ptr<c11::int32_t>();
   }
 
   /// To object value.
@@ -169,21 +169,21 @@ class JsonBoolean : public JsonValue {
 
   /// Implement of JsonValue::ToBoolean method.
   ///
-  std::unique_ptr<bool> ToBoolean() const override {
-    return std::unique_ptr<bool>(new bool(value_));
+  c11::unique_ptr<bool> ToBoolean() const override {
+    return c11::unique_ptr<bool>(new bool(value_));
   }
 
   /// Implement of JsonValue::ToString method.
   ///
-  std::unique_ptr<std::string> ToString() const override {
-    return std::unique_ptr<std::string>(
+  c11::unique_ptr<std::string> ToString() const override {
+    return c11::unique_ptr<std::string>(
         new std::string(value_ ? "true" : "false"));
   }
 
   /// Implement of JsonValue::ToInt32 method.
   ///
-  virtual std::unique_ptr<std::int32_t> ToInt32() const {
-    return std::unique_ptr<std::int32_t>(new std::int32_t(value_));
+  virtual c11::unique_ptr<c11::int32_t> ToInt32() const {
+    return c11::unique_ptr<c11::int32_t>(new c11::int32_t(value_));
   }
 
   /// Implement of const JsonValue::SerializeValue method.
@@ -227,29 +227,29 @@ class JsonString : public JsonValue {
 
   /// Implement of JsonValue::ToBoolean method.
   ///
-  std::unique_ptr<bool> ToBoolean() const override {
+  c11::unique_ptr<bool> ToBoolean() const override {
     if (value_.compare("true") == 0) {
-      return std::unique_ptr<bool>(new bool(true));
+      return c11::unique_ptr<bool>(new bool(true));
     } else if (value_.compare("false") == 0) {
-      return std::unique_ptr<bool>(new bool(false));
+      return c11::unique_ptr<bool>(new bool(false));
     } else {
-      return std::unique_ptr<bool>();
+      return c11::unique_ptr<bool>();
     }
   }
 
   /// Implement of JsonValue::ToString method.
   ///
-  std::unique_ptr<std::string> ToString() const override {
-    return std::unique_ptr<std::string>(new std::string(value_));
+  c11::unique_ptr<std::string> ToString() const override {
+    return c11::unique_ptr<std::string>(new std::string(value_));
   }
 
   /// Implement of JsonValue::ToInt32 method.
   ///
-  virtual std::unique_ptr<std::int32_t> ToInt32() const {
-    if (std::unique_ptr<JsonValue> value = NumberStringToJsonValue(value_)) {
+  virtual c11::unique_ptr<c11::int32_t> ToInt32() const {
+    if (c11::unique_ptr<JsonValue> value = NumberStringToJsonValue(value_)) {
       return value->ToInt32();
     } else {
-      return std::unique_ptr<std::int32_t>();
+      return c11::unique_ptr<c11::int32_t>();
     }
   }
 
@@ -278,7 +278,7 @@ class JsonNumber : public JsonValue {
   ///
   /// @param value 32bit integer value.
   ///
-  explicit JsonNumber(std::int32_t value) : type_(kInt32) {
+  explicit JsonNumber(c11::int32_t value) : type_(kInt32) {
     value_.int32_ = value;
   }
 
@@ -286,7 +286,7 @@ class JsonNumber : public JsonValue {
   ///
   /// @param value 64bit integer value.
   ///
-  explicit JsonNumber(std::int64_t value) : type_(kInt64) {
+  explicit JsonNumber(c11::int64_t value) : type_(kInt64) {
     value_.int64_ = value;
   }
 
@@ -310,22 +310,22 @@ class JsonNumber : public JsonValue {
 
   /// Implement of JsonValue::ToString method.
   ///
-  std::unique_ptr<std::string> ToString() const override {
-    return std::unique_ptr<std::string>(new std::string(SerializeValue()));
+  c11::unique_ptr<std::string> ToString() const override {
+    return c11::unique_ptr<std::string>(new std::string(SerializeValue()));
   }
 
   /// Implement of JsonValue::ToInt32 method.
   ///
-  virtual std::unique_ptr<std::int32_t> ToInt32() const {
+  virtual c11::unique_ptr<c11::int32_t> ToInt32() const {
     switch (type_) {
       case kInt32:
-        return std::unique_ptr<std::int32_t>(new std::int32_t(value_.int32_));
+        return c11::unique_ptr<c11::int32_t>(new c11::int32_t(value_.int32_));
       case kInt64:
-        return std::unique_ptr<std::int32_t>(
-            new std::int32_t(static_cast<std::int32_t>(value_.int64_)));
+        return c11::unique_ptr<c11::int32_t>(
+            new c11::int32_t(static_cast<c11::int32_t>(value_.int64_)));
       default:  // kDouble
-        return std::unique_ptr<std::int32_t>(
-            new std::int32_t(static_cast<std::int32_t>(value_.double_)));
+        return c11::unique_ptr<c11::int32_t>(
+            new c11::int32_t(static_cast<c11::int32_t>(value_.double_)));
     }
   }
 
@@ -355,9 +355,9 @@ class JsonNumber : public JsonValue {
   /// Number value.
   union {
     /// 32bit integer.
-    std::int32_t int32_;
+    c11::int32_t int32_;
     /// 64bit integer.
-    std::int64_t int64_;
+    c11::int64_t int64_;
     /// double.
     double double_;
   } value_;
@@ -383,8 +383,8 @@ class JsonObjectImple : public JsonValue, public pettys::JsonObject {
 
   /// Implement of JsonValue::ToString method.
   ///
-  std::unique_ptr<std::string> ToString() const override {
-    return std::unique_ptr<std::string>(new std::string("object"));
+  c11::unique_ptr<std::string> ToString() const override {
+    return c11::unique_ptr<std::string>(new std::string("object"));
   }
 
   /// Implement of JsonValue::ToObject method.
@@ -426,65 +426,65 @@ class JsonObjectImple : public JsonValue, public pettys::JsonObject {
 
   /// Implement of JsonObject::GetBoolean method.
   ///
-  std::unique_ptr<bool> GetBoolean(const std::string& name) const override {
+  c11::unique_ptr<bool> GetBoolean(const std::string& name) const override {
     if (Has(name) && (container_.at(name)->GetType() == kJsonBoolean)) {
       return container_.at(name)->ToBoolean();
     } else {
-      return std::unique_ptr<bool>();
+      return c11::unique_ptr<bool>();
     }
   }
 
   /// Implement of JsonObject::ToBoolean method.
   ///
-  std::unique_ptr<bool> ToBoolean(const std::string& name) const override {
+  c11::unique_ptr<bool> ToBoolean(const std::string& name) const override {
     if (Has(name)) {
       return container_.at(name)->ToBoolean();
     } else {
-      return std::unique_ptr<bool>();
+      return c11::unique_ptr<bool>();
     }
   }
 
   /// Implement of JsonObject::GetString method.
   ///
-  std::unique_ptr<std::string> GetString(
+  c11::unique_ptr<std::string> GetString(
       const std::string& name) const override {
     if (Has(name) && (container_.at(name)->GetType() == kJsonString)) {
       return container_.at(name)->ToString();
     } else {
-      return std::unique_ptr<std::string>();
+      return c11::unique_ptr<std::string>();
     }
   }
 
   /// Implement of JsonObject::ToString method.
   ///
-  std::unique_ptr<std::string> ToString(
+  c11::unique_ptr<std::string> ToString(
       const std::string& name) const override {
     if (Has(name)) {
       return container_.at(name)->ToString();
     } else {
-      return std::unique_ptr<std::string>();
+      return c11::unique_ptr<std::string>();
     }
   }
 
   /// Implement of JsonObject::GetInt32 method.
   ///
-  std::unique_ptr<std::int32_t> GetInt32(
+  c11::unique_ptr<c11::int32_t> GetInt32(
       const std::string& name) const override {
     if (Has(name) && (container_.at(name)->GetType() == kJsonNumber)) {
       return container_.at(name)->ToInt32();
     } else {
-      return std::unique_ptr<std::int32_t>();
+      return c11::unique_ptr<c11::int32_t>();
     }
   }
 
   /// Implement of JsonObject::ToInt32 method.
   ///
-  std::unique_ptr<std::int32_t> ToInt32(
+  c11::unique_ptr<c11::int32_t> ToInt32(
       const std::string& name) const override {
     if (Has(name)) {
       return container_.at(name)->ToInt32();
     } else {
-      return std::unique_ptr<std::int32_t>();
+      return c11::unique_ptr<c11::int32_t>();
     }
   }
 
@@ -503,38 +503,38 @@ class JsonObjectImple : public JsonValue, public pettys::JsonObject {
   /// Implement of JsonObject::PutNull method.
   ///
   void PutNull(const std::string& name) override {
-    container_[name] = std::unique_ptr<JsonValue>(new JsonNull());
+    container_[name] = c11::unique_ptr<JsonValue>(new JsonNull());
   }
 
   /// Implement of JsonObject::PutBoolean method.
   ///
   void PutBoolean(const std::string& name, bool value) override {
-    container_[name] = std::unique_ptr<JsonValue>(new JsonBoolean(value));
+    container_[name] = c11::unique_ptr<JsonValue>(new JsonBoolean(value));
   }
 
   /// Implement of JsonObject::PutString method.
   ///
   void PutString(const std::string& name, const std::string& value) override {
-    container_[name] = std::unique_ptr<JsonValue>(new JsonString(value));
+    container_[name] = c11::unique_ptr<JsonValue>(new JsonString(value));
   }
 
   /// Implement of JsonObject::PutInt32 method.
   ///
-  void PutInt32(const std::string& name, std::int32_t value) override {
-    container_[name] = std::unique_ptr<JsonValue>(new JsonNumber(value));
+  void PutInt32(const std::string& name, c11::int32_t value) override {
+    container_[name] = c11::unique_ptr<JsonValue>(new JsonNumber(value));
   }
 
   /// Implement of JsonObject::PutObject method.
   ///
   void PutObject(const std::string& name,
-                 std::unique_ptr<pettys::JsonObject> value) override {
+                 c11::unique_ptr<pettys::JsonObject> value) override {
     container_[name] = JsonObjectToJsonValue(std::move(value));
   }
 
   /// Implement of JsonObject::PutArray method.
   ///
   void PutArray(const std::string& name,
-                std::unique_ptr<pettys::JsonArray> value) override {
+                c11::unique_ptr<pettys::JsonArray> value) override {
     container_[name] = JsonArrayToJsonValue(std::move(value));
   }
 
@@ -543,7 +543,7 @@ class JsonObjectImple : public JsonValue, public pettys::JsonObject {
   /// @param name  mapping name.
   /// @param value JSON value.
   ///
-  void PutValue(const std::string& name, std::unique_ptr<JsonValue> value) {
+  void PutValue(const std::string& name, c11::unique_ptr<JsonValue> value) {
     container_[name] = std::move(value);
   }
 
@@ -597,7 +597,7 @@ class JsonObjectImple : public JsonValue, public pettys::JsonObject {
 
  private:
   /// Values container type.
-  typedef std::unordered_map<std::string, std::unique_ptr<JsonValue> >
+  typedef std::unordered_map<std::string, c11::unique_ptr<JsonValue> >
       Container;
 
   /// Values container.
@@ -624,8 +624,8 @@ class JsonArrayImple : public JsonValue, public pettys::JsonArray {
 
   /// Implement of JsonValue::ToString method.
   ///
-  std::unique_ptr<std::string> ToString() const override {
-    return std::unique_ptr<std::string>(new std::string("array"));
+  c11::unique_ptr<std::string> ToString() const override {
+    return c11::unique_ptr<std::string>(new std::string("array"));
   }
 
   /// Implement of JsonValue::ToArray method.
@@ -655,64 +655,64 @@ class JsonArrayImple : public JsonValue, public pettys::JsonArray {
 
   /// Implement of JsonArray::GetBoolean method.
   ///
-  std::unique_ptr<bool> GetBoolean(std::size_t index) const override {
+  c11::unique_ptr<bool> GetBoolean(std::size_t index) const override {
     if ((index < GetSize())
         && (container_.at(index)->GetType() == kJsonBoolean)) {
       return container_.at(index)->ToBoolean();
     } else {
-      return std::unique_ptr<bool>();
+      return c11::unique_ptr<bool>();
     }
   }
 
   /// Implement of JsonArray::ToBoolean method.
   ///
-  std::unique_ptr<bool> ToBoolean(std::size_t index) const override {
+  c11::unique_ptr<bool> ToBoolean(std::size_t index) const override {
     if (index < GetSize()) {
       return container_.at(index)->ToBoolean();
     } else {
-      return std::unique_ptr<bool>();
+      return c11::unique_ptr<bool>();
     }
   }
 
   /// Implement of JsonArray::GetString method.
   ///
-  std::unique_ptr<std::string> GetString(std::size_t index) const override {
+  c11::unique_ptr<std::string> GetString(std::size_t index) const override {
     if ((index < GetSize())
         && (container_.at(index)->GetType() == kJsonString)) {
       return container_.at(index)->ToString();
     } else {
-      return std::unique_ptr<std::string>();
+      return c11::unique_ptr<std::string>();
     }
   }
 
   /// Implement of JsonArray::ToString method.
   ///
-  std::unique_ptr<std::string> ToString(std::size_t index) const override {
+  c11::unique_ptr<std::string> ToString(std::size_t index) const override {
     if (index < GetSize()) {
       return container_.at(index)->ToString();
     } else {
-      return std::unique_ptr<std::string>();
+      return c11::unique_ptr<std::string>();
     }
   }
 
   /// Implement of JsonArray::GetInt32 method.
   ///
-  std::unique_ptr<std::int32_t> GetInt32(std::size_t index) const override {
+  c11::unique_ptr<c11::int32_t> GetInt32(std::size_t index) const override {
     if ((index < GetSize())
         && (container_.at(index)->GetType() == kJsonNumber)) {
       return container_.at(index)->ToInt32();
     } else {
-      return std::unique_ptr<std::int32_t>();
+      return c11::unique_ptr<c11::int32_t>();
     }
   }
 
   /// Implement of JsonArray::ToInt32 method.
   ///
-  std::unique_ptr<std::int32_t> ToInt32(std::size_t index) const override {
+  c11::unique_ptr<c11::int32_t> ToInt32(std::size_t index) const override {
     if (index < GetSize()) {
       return container_.at(index)->ToInt32();
     } else {
-      return std::unique_ptr<std::int32_t>();
+      return c11::unique_ptr<c11::int32_t>();
     }
   }
 
@@ -731,36 +731,36 @@ class JsonArrayImple : public JsonValue, public pettys::JsonArray {
   /// Implement of JsonArray::AppendNull method.
   ///
   void AppendNull() override {
-    container_.push_back(std::unique_ptr<JsonValue>(new JsonNull()));
+    container_.push_back(c11::unique_ptr<JsonValue>(new JsonNull()));
   }
 
   /// Implement of JsonArray::AppendBoolean method.
   ///
   void AppendBoolean(bool value) override {
-    container_.push_back(std::unique_ptr<JsonValue>(new JsonBoolean(value)));
+    container_.push_back(c11::unique_ptr<JsonValue>(new JsonBoolean(value)));
   }
 
   /// Implement of JsonArray::AppendString method.
   ///
   void AppendString(const std::string& value) override {
-    container_.push_back(std::unique_ptr<JsonValue>(new JsonString(value)));
+    container_.push_back(c11::unique_ptr<JsonValue>(new JsonString(value)));
   }
 
   /// Implement of JsonArray::AppendInt32 method.
   ///
-  void AppendInt32(std::int32_t value) override {
-    container_.push_back(std::unique_ptr<JsonValue>(new JsonNumber(value)));
+  void AppendInt32(c11::int32_t value) override {
+    container_.push_back(c11::unique_ptr<JsonValue>(new JsonNumber(value)));
   }
 
   /// Implement of JsonArray::AppendObject method.
   ///
-  void AppendObject(std::unique_ptr<pettys::JsonObject> value) override {
+  void AppendObject(c11::unique_ptr<pettys::JsonObject> value) override {
     container_.push_back(JsonObjectToJsonValue(std::move(value)));
   }
 
   /// Implement of JsonArray::AppendArray method.
   ///
-  void AppendArray(std::unique_ptr<pettys::JsonArray> value) override {
+  void AppendArray(c11::unique_ptr<pettys::JsonArray> value) override {
     container_.push_back(JsonArrayToJsonValue(std::move(value)));
   }
 
@@ -768,7 +768,7 @@ class JsonArrayImple : public JsonValue, public pettys::JsonArray {
   ///
   /// @param value JSON value.
   ///
-  void AppendValue(std::unique_ptr<JsonValue> value) {
+  void AppendValue(c11::unique_ptr<JsonValue> value) {
     container_.push_back(std::move(value));
   }
 
@@ -821,7 +821,7 @@ class JsonArrayImple : public JsonValue, public pettys::JsonArray {
 
  private:
   /// Values container type.
-  typedef std::vector<std::unique_ptr<JsonValue> > Container;
+  typedef std::vector<c11::unique_ptr<JsonValue> > Container;
 
   /// Values container.
   Container container_;
@@ -914,30 +914,30 @@ class InputStream {
 /// @param value number string.
 /// @return JSON value.
 ///
-std::unique_ptr<JsonValue> NumberStringToJsonValue(const std::string& value) {
-  std::int32_t int32_value = 0;
-  std::int64_t int64_value = 0;
+c11::unique_ptr<JsonValue> NumberStringToJsonValue(const std::string& value) {
+  c11::int32_t int32_value = 0;
+  c11::int64_t int64_value = 0;
 
   std::string::size_type index = value.find_first_not_of(' ');
   if ((index == std::string::npos) || (value.at(index) == '+')) {
-    return std::unique_ptr<JsonValue>();
+    return c11::unique_ptr<JsonValue>();
   }
 
   if (pettys::TryStringToInteger(value.c_str(), 10, &int32_value)) {
     // to 32bit integer
-    return std::unique_ptr<JsonValue>(new JsonNumber(int32_value));
+    return c11::unique_ptr<JsonValue>(new JsonNumber(int32_value));
   } else if (pettys::TryStringToInteger(value.c_str(), 10, &int64_value)) {
     // to 64bit integer
-    return std::unique_ptr<JsonValue>(new JsonNumber(int64_value));
+    return c11::unique_ptr<JsonValue>(new JsonNumber(int64_value));
   } else {
     // to double
     char* end_point = nullptr;
     double double_value = ::strtod(value.c_str(), &end_point);
     if ((end_point != nullptr) && (*end_point == '\0')
         && (double_value != HUGE_VAL) && (double_value != -HUGE_VAL)) {
-      return std::unique_ptr<JsonValue>(new JsonNumber(double_value));
+      return c11::unique_ptr<JsonValue>(new JsonNumber(double_value));
     } else {
-      return std::unique_ptr<JsonValue>();
+      return c11::unique_ptr<JsonValue>();
     }
   }
 }
@@ -947,9 +947,9 @@ std::unique_ptr<JsonValue> NumberStringToJsonValue(const std::string& value) {
 /// @param value JSON object.
 /// @return JSON value.
 ///
-std::unique_ptr<JsonValue> JsonObjectToJsonValue(
-    std::unique_ptr<pettys::JsonObject> value) {
-  return std::unique_ptr<JsonValue>(
+c11::unique_ptr<JsonValue> JsonObjectToJsonValue(
+    c11::unique_ptr<pettys::JsonObject> value) {
+  return c11::unique_ptr<JsonValue>(
       static_cast<JsonObjectImple*>(value.release()));
 }
 
@@ -958,9 +958,9 @@ std::unique_ptr<JsonValue> JsonObjectToJsonValue(
 /// @param value JSON array.
 /// @return JSON value.
 ///
-std::unique_ptr<JsonValue> JsonArrayToJsonValue(
-    std::unique_ptr<pettys::JsonArray> value) {
-  return std::unique_ptr<JsonValue>(
+c11::unique_ptr<JsonValue> JsonArrayToJsonValue(
+    c11::unique_ptr<pettys::JsonArray> value) {
+  return c11::unique_ptr<JsonValue>(
       static_cast<JsonArrayImple*>(value.release()));
 }
 
@@ -1031,10 +1031,10 @@ bool ParseCodePoint(InputStream* input, std::string* output) {
 /// @param input input stream.
 /// @return JSON value.
 ///
-std::unique_ptr<JsonString> ParseString(InputStream* input) {
+c11::unique_ptr<JsonString> ParseString(InputStream* input) {
   // start character
   if (input->GetToken() != '"') {
-    return std::unique_ptr<JsonString>();
+    return c11::unique_ptr<JsonString>();
   }
 
   std::string value;
@@ -1042,7 +1042,7 @@ std::unique_ptr<JsonString> ParseString(InputStream* input) {
   while ((character = input->NextChar()) != '"') {
     if (((character >= 0x00) && (character <= 0x1f)) || (character == 0x7f)) {
       // control character
-      return std::unique_ptr<JsonString>();
+      return c11::unique_ptr<JsonString>();
     } else if (character == '\\') {
       // escape character
       switch (input->NextChar()) {
@@ -1072,11 +1072,11 @@ std::unique_ptr<JsonString> ParseString(InputStream* input) {
           break;
         case 'u':
           if (!ParseCodePoint(input, &value)) {
-            return std::unique_ptr<JsonString>();
+            return c11::unique_ptr<JsonString>();
           }
           break;
         default:
-          return std::unique_ptr<JsonString>();
+          return c11::unique_ptr<JsonString>();
       }
     } else {
       value.push_back(character);
@@ -1085,9 +1085,9 @@ std::unique_ptr<JsonString> ParseString(InputStream* input) {
 
   if ((input->GetChar() == '"') && input->Next()) {
     // end character
-    return std::unique_ptr<JsonString>(new JsonString(value));
+    return c11::unique_ptr<JsonString>(new JsonString(value));
   } else {
-    return std::unique_ptr<JsonString>();
+    return c11::unique_ptr<JsonString>();
   }
 }
 
@@ -1096,7 +1096,7 @@ std::unique_ptr<JsonString> ParseString(InputStream* input) {
 /// @param input input stream.
 /// @return JSON number.
 ///
-std::unique_ptr<JsonValue> ParseNumber(InputStream* input) {
+c11::unique_ptr<JsonValue> ParseNumber(InputStream* input) {
   // trim whitespace
   input->Trim();
 
@@ -1121,30 +1121,30 @@ std::unique_ptr<JsonValue> ParseNumber(InputStream* input) {
 /// @param input input stream.
 /// @return JSON object.
 ///
-std::unique_ptr<JsonObjectImple> ParseObject(InputStream* input) {
+c11::unique_ptr<JsonObjectImple> ParseObject(InputStream* input) {
   // start character
   if ((input->GetToken() != '{') || !input->Next()) {
-    return std::unique_ptr<JsonObjectImple>();
+    return c11::unique_ptr<JsonObjectImple>();
   }
 
-  std::unique_ptr<JsonObjectImple> json_object(new JsonObjectImple());
+  c11::unique_ptr<JsonObjectImple> json_object(new JsonObjectImple());
   if (input->GetToken() != '}') {
     do {
       // object name
-      std::unique_ptr<JsonString> name = ParseString(input);
+      c11::unique_ptr<JsonString> name = ParseString(input);
       if (!name) {
-        return std::unique_ptr<JsonObjectImple>();
+        return c11::unique_ptr<JsonObjectImple>();
       }
 
       // object separator
       if ((input->GetToken() != ':') || !input->Next()) {
-        return std::unique_ptr<JsonObjectImple>();
+        return c11::unique_ptr<JsonObjectImple>();
       }
 
       // object value
-      std::unique_ptr<JsonValue> value = ParseValue(input);
+      c11::unique_ptr<JsonValue> value = ParseValue(input);
       if (!value) {
-        return std::unique_ptr<JsonObjectImple>();
+        return c11::unique_ptr<JsonObjectImple>();
       }
 
       json_object->PutValue(name->GetString(), std::move(value));
@@ -1155,7 +1155,7 @@ std::unique_ptr<JsonObjectImple> ParseObject(InputStream* input) {
     // end character
     return std::move(json_object);
   } else {
-    return std::unique_ptr<JsonObjectImple>();
+    return c11::unique_ptr<JsonObjectImple>();
   }
 }
 
@@ -1164,20 +1164,20 @@ std::unique_ptr<JsonObjectImple> ParseObject(InputStream* input) {
 /// @param input input stream.
 /// @return JSON array.
 ///
-std::unique_ptr<JsonArrayImple> ParseArray(InputStream* input) {
+c11::unique_ptr<JsonArrayImple> ParseArray(InputStream* input) {
   // start character
   if ((input->GetToken() != '[') || !input->Next()) {
-    return std::unique_ptr<JsonArrayImple>();
+    return c11::unique_ptr<JsonArrayImple>();
   }
 
-  std::unique_ptr<JsonArrayImple> json_array(new JsonArrayImple());
+  c11::unique_ptr<JsonArrayImple> json_array(new JsonArrayImple());
   if (input->GetToken() != ']') {
     do {
       // array value
-      if (std::unique_ptr<JsonValue> value = ParseValue(input)) {
+      if (c11::unique_ptr<JsonValue> value = ParseValue(input)) {
         json_array->AppendValue(std::move(value));
       } else {
-        return std::unique_ptr<JsonArrayImple>();
+        return c11::unique_ptr<JsonArrayImple>();
       }
     } while ((input->GetToken() == ',') && input->Next());
   }
@@ -1186,7 +1186,7 @@ std::unique_ptr<JsonArrayImple> ParseArray(InputStream* input) {
     // end character
     return std::move(json_array);
   } else {
-    return std::unique_ptr<JsonArrayImple>();
+    return c11::unique_ptr<JsonArrayImple>();
   }
 }
 
@@ -1195,25 +1195,25 @@ std::unique_ptr<JsonArrayImple> ParseArray(InputStream* input) {
 /// @param input input stream.
 /// @return JSON value.
 ///
-std::unique_ptr<JsonValue> ParseValue(InputStream* input) {
+c11::unique_ptr<JsonValue> ParseValue(InputStream* input) {
   switch (input->GetToken()) {
     case 'n':   // null
       if (input->CompareAndNext("null")) {
-        return std::unique_ptr<JsonValue>(new JsonNull());
+        return c11::unique_ptr<JsonValue>(new JsonNull());
       } else {
-        return std::unique_ptr<JsonValue>();
+        return c11::unique_ptr<JsonValue>();
       }
     case 't':   // true
       if (input->CompareAndNext("true")) {
-        return std::unique_ptr<JsonValue>(new JsonBoolean(true));
+        return c11::unique_ptr<JsonValue>(new JsonBoolean(true));
       } else {
-        return std::unique_ptr<JsonValue>();
+        return c11::unique_ptr<JsonValue>();
       }
     case 'f':   // false
       if (input->CompareAndNext("false")) {
-        return std::unique_ptr<JsonValue>(new JsonBoolean(false));
+        return c11::unique_ptr<JsonValue>(new JsonBoolean(false));
       } else {
-        return std::unique_ptr<JsonValue>();
+        return c11::unique_ptr<JsonValue>();
       }
     case '"':   // string
       return ParseString(input);
@@ -1278,14 +1278,14 @@ namespace pettystring {
 
 /// Parse from JSON string.
 ///
-std::unique_ptr<JsonObject> JsonObject::Parse(const std::string& json) {
+c11::unique_ptr<JsonObject> JsonObject::Parse(const std::string& json) {
   InputStream input(json.begin(), json.end());
   return ParseObject(&input);
 }
 
 /// Parse from JSON string.
 ///
-std::unique_ptr<JsonArray> JsonArray::Parse(const std::string& json) {
+c11::unique_ptr<JsonArray> JsonArray::Parse(const std::string& json) {
   InputStream input(json.begin(), json.end());
   return ParseArray(&input);
 }
